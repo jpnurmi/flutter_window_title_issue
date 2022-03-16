@@ -1,0 +1,21 @@
+name: flutter-window-title-issue
+version: git
+summary: flutter-window-title-issue
+description: https://github.com/canonical/ubuntu-desktop-installer/issues/670
+grade: devel
+confinement: strict
+base: core18
+
+architectures:
+  - build-on: amd64
+
+apps:
+  flutter-window-title-issue:
+    command: bin/flutter_window_title_issue
+    extensions: [flutter-stable]
+
+parts:
+  flutter-window-title-issue:
+    source: .
+    source-type: git
+    plugin: flutter
