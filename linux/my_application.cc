@@ -14,6 +14,28 @@ struct _MyApplication {
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
 
+static void on_method_call(FlMethodChannel* channel, FlMethodCall* method_call,
+                           gpointer user_data) {
+  g_autoptr(FlMethodResponse) response = nullptr;
+
+  FlView* view = (FlView*)user_data;
+  GtkWidget* window = gtk_widget_get_toplevel(GTK_WIDGET(view));
+  const gchar* method = fl_method_call_get_name(method_call);
+
+  if (strcmp(method, "setWindowTitle") == 0) {
+    FlValue* title = fl_method_call_get_args(method_call);
+    GtkWidget* header_bar = gtk_window_get_titlebar(GTK_WINDOW(window));
+    gtk_header_bar_set_title(GTK_HEADER_BAR(header_bar),
+                             fl_value_get_string(title));
+    // gtk_widget_queue_allocate(GTK_WIDGET(header_bar));
+    response = FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
+  } else {
+    response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+  }
+
+  fl_method_call_respond(method_call, response, nullptr);
+}
+
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
   MyApplication* self = MY_APPLICATION(application);
@@ -40,14 +62,14 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "flutter_window_title_issue");
+    gtk_header_bar_set_title(header_bar, "My App");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "flutter_window_title_issue");
+    gtk_window_set_title(window, "My App");
   }
 
-  gtk_window_set_default_size(window, 1280, 720);
+  gtk_window_set_default_size(window, 600, 400);
   gtk_widget_show(GTK_WIDGET(window));
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();
@@ -59,6 +81,15 @@ static void my_application_activate(GApplication* application) {
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
 
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
+
+  FlEngine* engine = fl_view_get_engine(view);
+  FlBinaryMessenger* messenger = fl_engine_get_binary_messenger(engine);
+
+  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+  g_autoptr(FlMethodChannel) method_channel = fl_method_channel_new(
+      messenger, "flutter_window_title_issue", FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(method_channel, on_method_call,
+                                            g_object_ref(view), g_object_unref);
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
