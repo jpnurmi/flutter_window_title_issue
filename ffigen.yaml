@@ -1,0 +1,41 @@
+name: LibGtk
+description: https://github.com/canonical/ubuntu-desktop-installer/issues/670
+output: lib/libgtk.g.dart
+llvm-path:
+  - "/usr/lib/llvm-14"
+compiler-opts:
+  # pkg-config --cflags gtk+-3.0
+  - "-pthread -I/usr/include/gtk-3.0 -I/usr/include/at-spi2-atk/2.0 -I/usr/include/at-spi-2.0 -I/usr/include/dbus-1.0 -I/usr/lib/x86_64-linux-gnu/dbus-1.0/include -I/usr/include/gtk-3.0 -I/usr/include/gio-unix-2.0 -I/usr/include/cairo -I/usr/include/pango-1.0 -I/usr/include/harfbuzz -I/usr/include/pango-1.0 -I/usr/include/fribidi -I/usr/include/harfbuzz -I/usr/include/atk-1.0 -I/usr/include/cairo -I/usr/include/pixman-1 -I/usr/include/uuid -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/gdk-pixbuf-2.0 -I/usr/include/libpng16 -I/usr/include/x86_64-linux-gnu -I/usr/include/libmount -I/usr/include/blkid -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include"
+headers:
+  entry-points:
+    - "/usr/include/gtk-3.0/gtk/gtk.h"
+globals:
+  exclude:
+    - ".*"
+functions:
+  include:
+    - "g_application_get_default"
+    - "gtk_application_get_active_window"
+    - "gtk_header_bar_set_title"
+    - "gtk_window_get_titlebar"
+macros:
+  exclude:
+    - ".*"
+enums:
+  exclude:
+    - ".*"
+unnamed-enums:
+  exclude:
+    - ".*"
+structs:
+  include:
+    - "GApplication"
+    - "GtkApplication"
+    - "GtkHeaderBar"
+    - "GtkWindow"
+unions:
+  exclude:
+    - ".*"
+typedefs:
+  exclude:
+    - ".*"
