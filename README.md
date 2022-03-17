@@ -42,3 +42,4 @@ https://user-images.githubusercontent.com/140617/158589560-5a2a36bb-5cb3-49e3-b9
   - is the issue caused by composited `FlGLArea` layers in `FlView`?
   - it was a large and intrusive change over a year ago: https://github.com/flutter/engine/pull/24011
   - this is obviously not a solution, because it breaks Flutter's rendering, but replacing the layered areas with a single `FlGLArea` does avoid the titlebar update problem: https://github.com/jpnurmi/engine/commit/4dec73c5b2d85cc9454ce3f9306b9e3c958ad314
+- **UPDATE**: the issue is reproducible by simply running `stress` in the background
