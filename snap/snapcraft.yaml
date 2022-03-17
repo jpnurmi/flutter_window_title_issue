@@ -1,21 +1,126 @@
 name: flutter-window-title-issue
 version: git
-summary: flutter-window-title-issue
+summary: Testcase for Flutter window title issue
 description: https://github.com/canonical/ubuntu-desktop-installer/issues/670
-grade: devel
-confinement: strict
-base: core18
-
-architectures:
-  - build-on: amd64
+confinement: classic
+base: core20
 
 apps:
   flutter-window-title-issue:
     command: bin/flutter_window_title_issue
-    extensions: [flutter-stable]
+    command-chain: [bin/launcher]
+    environment:
+      PATH: $SNAP/usr/bin:$SNAP/bin:$PATH
+      LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+      GIO_MODULE_DIR: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/gio/modules
 
 parts:
+  flutter-git:
+    source: https://github.com/flutter/flutter.git
+    source-branch: stable
+    source-depth: 1
+    plugin: nil
+    override-build: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/libexec
+      cp -r $SNAPCRAFT_PART_SRC $SNAPCRAFT_PART_INSTALL/usr/libexec/flutter
+      ln -s $SNAPCRAFT_PART_INSTALL/usr/libexec/flutter/bin/flutter $SNAPCRAFT_PART_INSTALL/usr/bin/flutter
+    build-packages:
+      - clang
+      - cmake
+      - curl
+      - libgtk-3-dev
+      - ninja-build
+      - unzip
+      - xz-utils
+      - zip
+    override-prime: ''
+
   flutter-window-title-issue:
+    after: [flutter-git]
     source: .
     source-type: git
-    plugin: flutter
+    plugin: nil
+    override-build: |
+      set -eux
+      mkdir -p $SNAPCRAFT_PART_INSTALL/bin/lib
+      cp snap/local/launcher $SNAPCRAFT_PART_INSTALL/bin/
+      flutter channel stable
+      flutter upgrade
+      flutter config --enable-linux-desktop
+      flutter doctor
+      flutter pub get
+      flutter build linux --release -v
+      cp -r build/linux/*/release/bundle/* $SNAPCRAFT_PART_INSTALL/bin/
+
+  libraries:
+    plugin: nil
+    stage-packages:
+      - libatk1.0-0
+      - libcairo-gobject2
+      - libcairo2
+      - libegl-mesa0
+      - libegl1
+      - libgl1
+      - libglib2.0-0
+      - libglib2.0-dev
+      - libgtk-3-0
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libpng16-16
+      - libwayland-egl1
+      - libx11-6
+      - libdatrie1
+      - libdrm2
+      - libgbm1
+      - libglapi-mesa
+      - libgraphite2-3
+      - libxshmfence1
+      - libllvm12
+      - libpciaccess0
+      - libvulkan1
+      - shared-mime-info
+    prime:
+      - usr/lib/*/libEGL*.so.*
+      - usr/lib/*/libGL*.so.*
+      - usr/lib/*/libX*.so.*
+      - usr/lib/*/liba*.so.*
+      - usr/lib/*/libcairo*.so.*
+      - usr/lib/*/libe*.so.*
+      - usr/lib/*/libf*.so.*
+      - usr/lib/*/libg*.so.*
+      - usr/lib/*/libharfbuzz*.so.*
+      - usr/lib/*/libpango*.so.*
+      - usr/lib/*/libpixman*.so.*
+      - usr/lib/*/libpng*.so.*
+      - usr/lib/*/libthai*.so.*
+      - usr/lib/*/libwayland*.so.*
+      - usr/lib/*/libxcb*.so.*
+      - usr/lib/*/libxkb*.so.*
+      - usr/lib/*/libdatrie*.so.*
+      - usr/lib/*/libdrm*.so.*
+      - usr/lib/*/libgbm*.so.*
+      - usr/lib/*/libglapi*.so.*
+      - usr/lib/*/libgraphite2*.so.*
+      - usr/lib/*/libxshmfence*.so.*
+      - usr/lib/*/libLLVM-12.so.*
+      - usr/lib/*/libpciaccess*.so.*
+      - usr/lib/*/libsensors*.so.*
+      - usr/lib/*/libvulkan*.so.*
+      - usr/share/glvnd/egl_vendor.d
+      - usr/lib/*/gdk-pixbuf-2.0
+      - usr/lib/*/
+      - usr/bin/update-mime-database
+      - usr/bin/gdk*
+      - usr/share/mime
+
+  dri-no-patchelf:
+    after: [libraries]
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+    build-attributes:
+      - no-patchelf # Otherwise snapcraft may strip the build ID and cause the driver to crash
+    stage:
+      - usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+      - usr/share/drirc.d
