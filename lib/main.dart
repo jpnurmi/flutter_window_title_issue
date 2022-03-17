@@ -1,31 +1,37 @@
 import 'dart:async';
-import 'dart:ffi' as ffi;
+import 'dart:ffi';
 
-import 'package:ffi/ffi.dart' as ffi;
+import 'package:ffi/ffi.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import 'libgtk.g.dart';
+final dylib = DynamicLibrary.open('libgtk-3.so.0');
 
-final libgtk = LibGtk(ffi.DynamicLibrary.open('libgtk-3.so.0'));
-
-const methodChannel = MethodChannel('flutter_window_title_issue');
-
-String formatWindowTitle(String document) {
-  return document.isEmpty ? 'My App' : 'My App - $document';
-}
+final g_application_get_default =
+    dylib.lookupFunction<Pointer Function(), Pointer Function()>(
+        'g_application_get_default');
+final gtk_application_get_active_window =
+    dylib.lookupFunction<Pointer Function(Pointer), Pointer Function(Pointer)>(
+        'gtk_application_get_active_window');
+final gtk_header_bar_set_title = dylib.lookupFunction<
+    Void Function(Pointer, Pointer),
+    void Function(Pointer, Pointer)>('gtk_header_bar_set_title');
+final gtk_window_get_titlebar =
+    dylib.lookupFunction<Pointer Function(Pointer), Pointer Function(Pointer)>(
+        'gtk_window_get_titlebar');
 
 void setWindowTitle(String title) {
   print('setWindowTitle: "$title"');
 
-  ffi.using((arena) {
-    final app = libgtk.g_application_get_default();
-    final window = libgtk.gtk_application_get_active_window(app.cast());
-
-    final str = title.toNativeUtf8(allocator: arena);
-    final titlebar = libgtk.gtk_window_get_titlebar(window);
-    libgtk.gtk_header_bar_set_title(titlebar.cast(), str.cast());
+  using((arena) {
+    final app = g_application_get_default();
+    final window = gtk_application_get_active_window(app);
+    final titlebar = gtk_window_get_titlebar(window);
+    gtk_header_bar_set_title(titlebar, title.toNativeUtf8(allocator: arena));
   });
+}
+
+String formatWindowTitle(String document) {
+  return document.isEmpty ? 'My App' : 'My App - $document';
 }
 
 void main() {
