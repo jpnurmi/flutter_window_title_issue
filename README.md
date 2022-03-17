@@ -33,7 +33,7 @@ https://user-images.githubusercontent.com/140617/158589560-5a2a36bb-5cb3-49e3-b9
   - `--enable-software-rendering`
 - a successful layout: `gtk_header_bar_set_title()` -> `gtk_widget_queue_resize()` -> `gtk_header_bar_allocate_contents()`
   - when the title is cut, `gtk_header_bar_allocate_contents()` does not get called
-- the issue is not reproducible with a minimal GTK test case (`GtkGLArea` + `GtkHeaderBar`)
+- the issue is not reproducible with a minimal GTK test case (`GtkGLArea` + `GtkHeaderBar` in the `gtk_app/` subdir)
 - deactivating the window triggers triggers a relayout that "fixes" the problem
 - the issue is reproducible outside the live environment with the `ubuntu_desktop_installer` snap
 - the issue is also reproducible if the method channel is replaced with direct GTK calls via FFI (`ffi-gtk` branch)
@@ -42,4 +42,4 @@ https://user-images.githubusercontent.com/140617/158589560-5a2a36bb-5cb3-49e3-b9
   - is the issue caused by composited `FlGLArea` layers in `FlView`?
   - it was a large and intrusive change over a year ago: https://github.com/flutter/engine/pull/24011
   - this is obviously not a solution, because it breaks Flutter's rendering, but replacing the layered areas with a single `FlGLArea` does avoid the titlebar update problem: https://github.com/jpnurmi/engine/commit/4dec73c5b2d85cc9454ce3f9306b9e3c958ad314
-- **UPDATE**: the issue is reproducible by simply running `stress` in the background
+- **UPDATE**: the issue is reproducible with Flutter apps (not with the pure GTK+ test case) by simply running `stress` in the background
