@@ -36,7 +36,8 @@ https://user-images.githubusercontent.com/140617/158589560-5a2a36bb-5cb3-49e3-b9
 - the issue is not reproducible with a minimal GTK test case (`GtkGLArea` + `GtkHeaderBar`)
 - deactivating the window triggers triggers a relayout that "fixes" the problem
 - the issue is reproducible outside the live environment with the `ubuntu_desktop_installer` snap
-- the issue is also reproducible if the method channel is replaced with direct GTK calls via FFI
+- the issue is also reproducible if the method channel is replaced with direct GTK calls via FFI (`ffi-gtk` branch)
+- the issue is not reproducible with a snap config copied and adapted from ubuntu_desktop_installer (`snap-udi` branch)
 - the window title gets correctly updated if `fl_view_begin_frame()` and `fl_view_end_frame()` are commented out
   - is the issue caused by composited `FlGLArea` layers in `FlView`?
   - it was a large and intrusive change over a year ago: https://github.com/flutter/engine/pull/24011
