@@ -31,8 +31,8 @@ https://user-images.githubusercontent.com/140617/158589560-5a2a36bb-5cb3-49e3-b9
   - latest gtk 3.24.33
   - `LIBGL_ALWAYS_SOFTWARE=1`
   - `--enable-software-rendering`
-- `gtk_header_bar_allocate_contents()` does not get called when the title is cut
-  - a successful layout: `gtk_header_bar_set_title()` -> `gtk_widget_queue_resize()` -> `gtk_header_bar_allocate_contents()`
+- a successful layout: `gtk_header_bar_set_title()` -> `gtk_widget_queue_resize()` -> `gtk_header_bar_allocate_contents()`
+  - when the title is cut, `gtk_header_bar_allocate_contents()` does not get called
 - the issue is not reproducible with a minimal GTK test case (`GtkGLArea` + `GtkHeaderBar`)
 - deactivating the window triggers triggers a relayout that "fixes" the problem
 - the issue is reproducible outside the live environment with the `ubuntu_desktop_installer` snap
