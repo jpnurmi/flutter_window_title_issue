@@ -13,7 +13,7 @@ $ ./build/linux/x64/release/bundle/flutter_window_title_issue
 ```
 https://user-images.githubusercontent.com/140617/158589543-174d8210-c678-456e-8bef-5b9430ad794f.mp4
 
-## Integration test
+## Under stress (e.g. integration test, snap, stress tool)
 
 ```sh
 $ flutter test integration_test/
@@ -43,3 +43,4 @@ https://user-images.githubusercontent.com/140617/158589560-5a2a36bb-5cb3-49e3-b9
   - it was a large and intrusive change over a year ago: https://github.com/flutter/engine/pull/24011
   - this is obviously not a solution, because it breaks Flutter's rendering, but replacing the layered areas with a single `FlGLArea` does avoid the titlebar update problem: https://github.com/jpnurmi/engine/commit/4dec73c5b2d85cc9454ce3f9306b9e3c958ad314
 - **UPDATE**: the issue is reproducible with Flutter apps (not with the pure GTK+ test case) by simply running `stress` in the background
+- `gtk_header_set_title()` calls `gtk_widget_queue_resize()` while the window's "idle sizer" timer is running
